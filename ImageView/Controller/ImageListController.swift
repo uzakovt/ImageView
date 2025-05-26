@@ -26,11 +26,7 @@ class ImageListController: UIViewController {
     }
 }
 
-extension ImageListController: UITableViewDelegate{
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) { }
-}
-
-extension ImageListController: UITableViewDataSource{
+extension ImageListController: UITableViewDataSource, UITableViewDelegate{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return photosNames.count
     }
@@ -54,6 +50,9 @@ extension ImageListController: UITableViewDataSource{
         configCell(for: imageListCell, with: indexPath)
         return imageListCell
     }
+    
+    // TODO:
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) { }
 }
 
 extension ImageListController {
