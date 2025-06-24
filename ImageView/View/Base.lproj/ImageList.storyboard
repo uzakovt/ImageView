@@ -211,69 +211,8 @@
                     <view key="view" contentMode="scaleToFill" id="9L2-5Z-aet">
                         <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="center" spacing="225" translatesAutoresizingMaskIntoConstraints="NO" id="WER-J2-zur">
-                                <rect key="frame" x="16" y="94" width="370" height="70"/>
-                                <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="userPic" translatesAutoresizingMaskIntoConstraints="NO" id="gXt-jT-ohX">
-                                        <rect key="frame" x="0.0" y="0.0" width="70" height="70"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="70" id="5LX-m0-4bs"/>
-                                            <constraint firstAttribute="width" constant="70" id="JGr-Br-vtg"/>
-                                        </constraints>
-                                    </imageView>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DZ5-JI-cVA">
-                                        <rect key="frame" x="326" y="13" width="44" height="44"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="44" id="DR8-1C-ZUm"/>
-                                            <constraint firstAttribute="height" constant="44" id="q2L-Hq-gns"/>
-                                        </constraints>
-                                        <color key="tintColor" red="0.96078431372549022" green="0.41960784313725491" blue="0.42352941176470588" alpha="1" colorSpace="calibratedRGB"/>
-                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
-                                        <state key="normal" image="exit">
-                                            <color key="titleColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="logOutButtonPressed:" destination="OOj-S6-br4" eventType="touchUpInside" id="yiH-o0-mfM"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                            </stackView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Charlotte Skyba" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JlJ-1C-elR">
-                                <rect key="frame" x="16" y="172" width="370" height="27.666666666666657"/>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="23"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="@charlll" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FKT-cT-aVR">
-                                <rect key="frame" x="16.000000000000004" y="207.66666666666666" width="48.333333333333343" height="15.666666666666657"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                <color key="textColor" red="0.68235294117647061" green="0.68627450980392157" blue="0.70588235294117641" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hello world" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CF4-Av-UO5">
-                                <rect key="frame" x="16" y="231.33333333333334" width="68" height="15.666666666666657"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="8S3-G3-j4p"/>
                         <color key="backgroundColor" name="BgColor"/>
-                        <constraints>
-                            <constraint firstItem="CF4-Av-UO5" firstAttribute="leading" secondItem="8S3-G3-j4p" secondAttribute="leading" constant="16" id="3Ab-nv-cqV"/>
-                            <constraint firstItem="JlJ-1C-elR" firstAttribute="top" secondItem="WER-J2-zur" secondAttribute="bottom" constant="8" id="AQA-td-1sU"/>
-                            <constraint firstItem="FKT-cT-aVR" firstAttribute="leading" secondItem="8S3-G3-j4p" secondAttribute="leading" constant="16" id="GnQ-N9-jEH"/>
-                            <constraint firstItem="8S3-G3-j4p" firstAttribute="trailing" secondItem="JlJ-1C-elR" secondAttribute="trailing" constant="16" id="Rzf-3g-ti6"/>
-                            <constraint firstItem="8S3-G3-j4p" firstAttribute="trailing" secondItem="WER-J2-zur" secondAttribute="trailing" constant="16" id="Sdb-ws-rNo"/>
-                            <constraint firstItem="JlJ-1C-elR" firstAttribute="leading" secondItem="8S3-G3-j4p" secondAttribute="leading" constant="16" id="TnU-sM-uxO"/>
-                            <constraint firstItem="CF4-Av-UO5" firstAttribute="top" secondItem="FKT-cT-aVR" secondAttribute="bottom" constant="8" id="gMf-Te-R91"/>
-                            <constraint firstItem="8S3-G3-j4p" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="CF4-Av-UO5" secondAttribute="trailing" symbolic="YES" id="rbw-u1-YKU"/>
-                            <constraint firstItem="WER-J2-zur" firstAttribute="leading" secondItem="8S3-G3-j4p" secondAttribute="leading" constant="16" id="sRx-j4-rab"/>
-                            <constraint firstItem="FKT-cT-aVR" firstAttribute="top" secondItem="JlJ-1C-elR" secondAttribute="bottom" constant="8" id="spp-Qa-aU3"/>
-                            <constraint firstItem="WER-J2-zur" firstAttribute="top" secondItem="8S3-G3-j4p" secondAttribute="top" constant="32" id="xfJ-9W-x9h"/>
-                            <constraint firstItem="8S3-G3-j4p" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="FKT-cT-aVR" secondAttribute="trailing" symbolic="YES" id="z25-AF-myd"/>
-                        </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" tag="1" title="" image="tab_profile_active" id="0vS-yS-FHd"/>
                 </viewController>
@@ -310,12 +249,10 @@
     <resources>
         <image name="0" width="1600" height="1059"/>
         <image name="backward" width="24" height="24"/>
-        <image name="exit" width="44" height="44"/>
         <image name="likeButtonOff" width="44" height="44"/>
         <image name="shareButton" width="50" height="50"/>
         <image name="tab_editorial_active" width="30" height="30"/>
         <image name="tab_profile_active" width="30" height="30"/>
-        <image name="userPic" width="70" height="70"/>
         <namedColor name="BgColor">
             <color red="0.10196079313755035" green="0.10588234663009644" blue="0.13333332538604736" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
@@ -323,7 +260,7 @@
             <color red="0.10196079313755035" green="0.10588234663009644" blue="0.13333332538604736" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <systemColor name="systemRedColor">
-            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.23137254901960785" blue="0.18823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
