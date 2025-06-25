@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ImageListController: UIViewController {
+final class ImageListController: UIViewController {
 
     @IBOutlet private var imageListTableView: UITableView!
     @IBOutlet weak var cellImageView: UIImageView!
@@ -19,6 +19,23 @@ class ImageListController: UIViewController {
         formatter.timeStyle = .none
         return formatter
     }()
+    private let singleImageSegueId = "showSingleImage"
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == singleImageSegueId {
+            guard
+                let viewController = segue.destination as? SingleImageViewController,
+                let indexPath = sender as? IndexPath
+            else {
+                assertionFailure("Invalid segue destination")
+                return
+            }
+            let image = UIImage(named: photosNames[indexPath.row])
+            viewController.image = image
+        } else {
+            super.prepare(for: segue, sender: sender)
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,7 +69,9 @@ extension ImageListController: UITableViewDataSource, UITableViewDelegate{
     }
     
     // TODO:
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) { }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: singleImageSegueId, sender: indexPath)
+    }
 }
 
 extension ImageListController {
