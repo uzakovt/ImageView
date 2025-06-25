@@ -78,7 +78,11 @@ final class ProfileViewController: UIViewController {
     }
     
     private func logOutButtonView(){
-        logOutButton = UIButton.systemButton(with: UIImage(named: "exit") ?? UIImage(), target: self, action: #selector(logOutButtonPressed))
+        logOutButton = UIButton.systemButton(
+            with: UIImage(named: "exit") ?? UIImage(),
+            target: self,
+            action: #selector(logOutButtonPressed)
+        )
         logOutButton.tintColor = .ypRed
         logOutButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(logOutButton)

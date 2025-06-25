@@ -55,12 +55,20 @@ final class SingleImageViewController: UIViewController {
         scrollView.setZoomScale(scale, animated: false)
         
         //Centering the Image
+        centerImage()
+    }
+    
+    private func centerImage(){
+        let boundsSize  = scrollView.bounds.size
         var frameToCenter = imageView.frame
-        let widthDiff  = visibleRectSize.width  - frameToCenter.size.width
-        let heightDiff = visibleRectSize.height - frameToCenter.size.height
-        frameToCenter.origin.x = (widthDiff  > 0) ? widthDiff  / 2 : 0;
-        frameToCenter.origin.y = (heightDiff > 0) ? heightDiff / 2 : 0;
-        imageView.frame = frameToCenter;
+
+        // center horizontally and vertically
+        let widthDiff  = boundsSize.width  - frameToCenter.size.width
+        let heightDiff = boundsSize.height - frameToCenter.size.height
+        frameToCenter.origin.x = (widthDiff  > 0) ? widthDiff  / 2 : 0
+        frameToCenter.origin.y = (heightDiff > 0) ? heightDiff / 2 : 0
+
+        imageView.frame = frameToCenter
     }
 }
 
@@ -70,16 +78,7 @@ extension SingleImageViewController: UIScrollViewDelegate {
     }
 
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        let boundsSize  = scrollView.bounds.size
-        var frameToCenter = imageView.frame
-
-        // center horizontally and vertically
-        let widthDiff  = boundsSize.width  - frameToCenter.size.width
-        let heightDiff = boundsSize.height - frameToCenter.size.height
-        frameToCenter.origin.x = (widthDiff  > 0) ? widthDiff  / 2 : 0;
-        frameToCenter.origin.y = (heightDiff > 0) ? heightDiff / 2 : 0;
-
-        imageView.frame = frameToCenter;
+        centerImage()
     }
     
 }
