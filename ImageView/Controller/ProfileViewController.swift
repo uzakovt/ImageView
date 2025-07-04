@@ -1,10 +1,3 @@
-//
-//  ProfileViewController.swift
-//  ImageView
-//
-//  Created by Temurbek Uzakov on 31/05/2025.
-//
-
 import UIKit
 
 final class ProfileViewController: UIViewController {
@@ -13,6 +6,7 @@ final class ProfileViewController: UIViewController {
     private var userBio = UILabel()
     private var profileImageView = UIImageView()
     private var logOutButton = UIButton()
+    private let authStorage = OAuth2TokenStorage()
     
     override func viewDidLoad() {
         profilePicture()
@@ -23,6 +17,7 @@ final class ProfileViewController: UIViewController {
     }
     
     @IBAction func logOutButtonPressed(_ sender: Any) {
+        UserDefaults.standard.removeObject(forKey: "token")
     }
     
     private func profilePicture(){

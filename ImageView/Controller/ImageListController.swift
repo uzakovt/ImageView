@@ -1,10 +1,3 @@
-//
-//  ViewController.swift
-//  ImageView
-//
-//  Created by Temurbek Uzakov on 30/04/2025.
-//
-
 import UIKit
 
 final class ImageListController: UIViewController {
@@ -68,7 +61,6 @@ extension ImageListController: UITableViewDataSource, UITableViewDelegate{
         return imageListCell
     }
     
-    // TODO:
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: singleImageSegueId, sender: indexPath)
     }
