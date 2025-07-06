@@ -2,13 +2,13 @@ import UIKit
 
 final class AuthViewController: UIViewController {
 
+    weak var delegate: AuthServiceDelegate?
     private var imageView = UIImageView()
     private var enterButton = UIButton()
     private var authService: OAuth2ServiceProtocol?
-    weak var delegate: AuthServiceDelegate?
 
     override func viewDidLoad() {
-        authService = OAuth2Service()
+        authService = OAuth2Service.shared
         view.backgroundColor = .ypBg
         logoImageView()
         logInButton()
@@ -61,7 +61,7 @@ final class AuthViewController: UIViewController {
         ])
     }
     private func logoImageView() {
-        let logoImage = UIImage(named: "auth_screen_logo")!
+        let logoImage = UIImage(named: "auth_screen_logo")
         imageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(imageView)
 
@@ -83,15 +83,12 @@ extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(
         _ vc: WebViewViewController, didAuthenticateWithCode code: String
     ) {
-        vc.dismiss(animated: true)
-        guard let authService else { return }
-        print("Recieved the code")
-
-        authService.fetchOAuthToken(code: code) { [weak self] result in
+        fetchOAuthToken(code) { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case .success(_):
+            case .success:
                 self.delegate?.didAuthenticate(self)
+                vc.dismiss(animated: true)
             case .failure(let error):
                 assertionFailure(error.localizedDescription)
             }
@@ -101,5 +98,13 @@ extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
         vc.dismiss(animated: true)
     }
+}
 
+extension AuthViewController {
+    private func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
+        guard let authService else { return }
+        authService.fetchOAuthToken(code: code) { result in
+            completion(result)
+        }
+    }
 }

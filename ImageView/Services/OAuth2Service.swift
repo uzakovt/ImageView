@@ -6,7 +6,10 @@ protocol OAuth2ServiceProtocol {
 }
 
 class OAuth2Service: OAuth2ServiceProtocol {
-    func makeOAuthTokenRequest(code: String) -> URLRequest? {
+    static let shared = OAuth2Service()
+    private init() {}
+    
+    private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         let baseURL = URL(string: "https://unsplash.com")
         let url = URL(
             string: "/oauth/token"
@@ -18,7 +21,7 @@ class OAuth2Service: OAuth2ServiceProtocol {
             relativeTo: baseURL
         )
         guard let url else {
-            print("Unable to unwrap URL for OAUTHTOKEN")
+            assertionFailure("Unable to unwrap URL for OAUTHTOKEN")
             return nil
         }
         var request = URLRequest(url: url)

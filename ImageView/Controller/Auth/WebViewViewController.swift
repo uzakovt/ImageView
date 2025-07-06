@@ -2,10 +2,10 @@ import UIKit
 import WebKit
 
 final class WebViewViewController: UIViewController {
+    weak var delegate: WebViewViewControllerDelegate?
     private var webView = WKWebView()
     private var progressBar = UIProgressView()
     private let progressKeyPath = #keyPath(WKWebView.estimatedProgress)
-    weak var delegate: WebViewViewControllerDelegate?
 
     override func viewWillAppear(_ animated: Bool) {
         webView.addObserver(
