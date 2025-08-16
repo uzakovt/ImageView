@@ -1,34 +1,58 @@
+import ProgressHUD
 import UIKit
 
 final class AuthViewController: UIViewController {
 
+    //MARK: - Variables
     weak var delegate: AuthServiceDelegate?
-    private var imageView = UIImageView()
-    private var enterButton = UIButton()
     private var authService: OAuth2ServiceProtocol?
+    private var alertPresenter: AlertPresenterProtocol?
 
+    //MARK: - UI Components
+    private lazy var imageView: UIImageView = {
+        let imageView = UIImageView()
+        let logoImage = UIImage(named: "auth_screen_logo")
+        imageView.image = logoImage
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    private lazy var enterButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Log In", for: .normal)
+        button.setTitleColor(.ypBlack, for: .normal)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
+        button.layer.cornerRadius = 16
+        button.layer.backgroundColor = UIColor.white.cgColor
+        button.addTarget(self, action: #selector(logInButtonPressed),
+            for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
+    //MARK: - Lifecycle
     override func viewDidLoad() {
         authService = OAuth2Service.shared
+        let alertPresenter = AlertPresenter()
+        alertPresenter.delegate = self
+        self.alertPresenter = alertPresenter
+        setupUI()
+    }
+
+    //MARK: - Methods
+    private func navigateToWebView() {
+        let webViewVC = WebViewViewController()
+        webViewVC.delegate = self
+        webViewVC.modalPresentationStyle = .fullScreen
+        show(webViewVC, sender: self)
+    }
+    
+    @objc private func logInButtonPressed() {
+        navigateToWebView()
+    }
+
+    //MARK: - Setup UI
+    private func setupUI() {
         view.backgroundColor = .ypBg
-        logoImageView()
-        logInButton()
-        configureBackButton()
-    }
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showWebView" {
-            guard let destination = segue.destination as? WebViewViewController
-            else {
-                assertionFailure("Unable to prepare for segue (showWebView)")
-                return
-            }
-            destination.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
-    }
-
-    private func configureBackButton() {
         navigationController?.navigationBar.backIndicatorImage = UIImage(
             named: "backward")
         navigationController?.navigationBar.backIndicatorTransitionMaskImage =
@@ -36,21 +60,10 @@ final class AuthViewController: UIViewController {
         navigationItem.backBarButtonItem = UIBarButtonItem(
             title: "", style: .plain, target: nil, action: nil)
         navigationItem.backBarButtonItem?.tintColor = .ypBlack
-    }
 
-    private func logInButton() {
-        enterButton = UIButton.systemButton(
-            with: UIImage(), target: self, action: #selector(logInButtonPressed)
-        )
-        enterButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(enterButton)
-        enterButton.setTitle("Log In", for: .normal)
-        enterButton.setTitleColor(.ypBlack, for: .normal)
-        enterButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
-        enterButton.layer.cornerRadius = 16
-        enterButton.layer.backgroundColor = UIColor.white.cgColor
-
+        [enterButton, imageView].forEach({ view.addSubview(($0)) })
         NSLayoutConstraint.activate([
+            //logInButton
             enterButton.heightAnchor.constraint(equalToConstant: 50),
             enterButton.leadingAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
@@ -58,39 +71,44 @@ final class AuthViewController: UIViewController {
                 equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             enterButton.bottomAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -90),
-        ])
-    }
-    private func logoImageView() {
-        let logoImage = UIImage(named: "auth_screen_logo")
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(imageView)
-
-        imageView.image = logoImage
-        NSLayoutConstraint.activate([
+            
+            //profileImageVIew
             imageView.heightAnchor.constraint(equalToConstant: 60),
             imageView.widthAnchor.constraint(equalToConstant: 60),
             imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
         ])
     }
-
-    @IBAction private func logInButtonPressed() {
-        performSegue(withIdentifier: "showWebView", sender: self)
-    }
 }
 
+//MARK: - WebViewViewControllerDelegate
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(
         _ vc: WebViewViewController, didAuthenticateWithCode code: String
     ) {
+        UIBlockingProgressHUD.show()
+
         fetchOAuthToken(code) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
             guard let self = self else { return }
             switch result {
             case .success:
                 self.delegate?.didAuthenticate(self)
                 vc.dismiss(animated: true)
             case .failure(let error):
-                assertionFailure(error.localizedDescription)
+                let alertdata = AlertModel(
+                    title: "Что-то пошло не так",
+                    text: "Не удалось войти в систему", buttonText: "Ок",
+                    completion: { [weak self] in
+                        guard let self else { return }
+                        self.dismiss(animated: true)
+                    }
+                )
+                alertPresenter?.showAlert(
+                    alertData: alertdata, id: "authErrorAlert")
+                print(
+                    "AuthViewController/ fetchOauthToken: auth error - \(error.localizedDescription)"
+                )
             }
         }
     }
@@ -101,10 +119,20 @@ extension AuthViewController: WebViewViewControllerDelegate {
 }
 
 extension AuthViewController {
-    private func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
+    private func fetchOAuthToken(
+        _ code: String, completion: @escaping (Result<String, Error>) -> Void
+    ) {
         guard let authService else { return }
         authService.fetchOAuthToken(code: code) { result in
             completion(result)
         }
+    }
+}
+
+// MARK: - AlertPresenterDelegate
+extension AuthViewController: AlertPresenterDelegate {
+    func didPresentAlert(alert: UIAlertController?) {
+        guard let alert else { return }
+        present(alert, animated: true)
     }
 }

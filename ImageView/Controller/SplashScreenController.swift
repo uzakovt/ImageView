@@ -1,38 +1,39 @@
 import UIKit
 
 final class SplashScreenController: UIViewController {
+    
+    //MARK: Variables
+    
     private let storage = OAuth2TokenStorage()
+    private let profileService = ProfileService.shared
+    private let profileImageService = ProfileImageService.shared
+    
+    
+    //MARK: Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpUI()
     }
-    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        if storage.token != nil {
-            switchToTabBarController()
+        if let token = storage.token {
+            fetchProfile(token)
         } else {
-            performSegue(withIdentifier: "showAuthWebViewScreen", sender: self)
+            navigateToAuth()
         }
     }
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showAuthWebViewScreen" {
-            guard
-                let navController = segue.destination
-                    as? UINavigationController,
-                let viewController = navController.viewControllers[0]
-                    as? AuthViewController
-            else {
-                assertionFailure("Failed To prepare showAuthWebViewScreen")
-                return
-            }
-            viewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
+    
+    
+    //MARK: Methods
+    private func navigateToAuth() {
+        let authVC = AuthViewController()
+        authVC.delegate = self
+        let authNavController = UINavigationController(rootViewController: authVC)
+        authNavController.modalPresentationStyle = .fullScreen
+        
+        present(authNavController, animated: true)
     }
 
     private func switchToTabBarController() {
@@ -40,11 +41,12 @@ final class SplashScreenController: UIViewController {
             assertionFailure("Invalid window configuration")
             return
         }
+        
 
-        let tabBarController = UIStoryboard(name: "ImageList", bundle: .main)
-            .instantiateViewController(withIdentifier: "TabBarViewController")
+        let tabBarController = TabBarController()
         window.rootViewController = tabBarController
     }
+    
     private func setUpUI() {
         view.backgroundColor = .ypBg
         let image = UIImage(named: "LaunchScreenIcon")
@@ -61,9 +63,34 @@ final class SplashScreenController: UIViewController {
     }
 }
 
+//MARK: AuthService Delegate
+
 extension SplashScreenController: AuthServiceDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true)
-        switchToTabBarController()
+        guard let token = storage.token else {
+            assertionFailure("Cannot load token in SplashScreen")
+            return
+        }
+        fetchProfile(token)
+    }
+    
+    private func fetchProfile(_ token: String) {
+        UIBlockingProgressHUD.show()
+        profileService.fetchProfile(token) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            
+            guard let self else { return }
+            
+            switch result {
+            case .success(let profile):
+                profileImageService.fetchProfileImageURL(profile.username) { _ in }
+                self.switchToTabBarController()
+            case .failure(let error):
+                print(error)
+                // TODO: show error for profile loading
+                break
+            }
+        }
     }
 }
