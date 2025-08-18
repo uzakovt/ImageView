@@ -2,12 +2,9 @@ import UIKit
 
 class ImageListCell: UITableViewCell {
     static let reuseIdentifier = "ImageListCell"
-    var date: String?
-    var image: UIImage?
-    var isLiked: Bool?
 
-    //MARK: UI Components
-     lazy var cellImage: UIImageView = {
+    //MARK: - UI Components
+    private lazy var cellImage: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleToFill
         iv.layer.cornerRadius = 16
@@ -16,7 +13,7 @@ class ImageListCell: UITableViewCell {
         return iv
     }()
 
-     lazy var dateLabel: UILabel = {
+    private lazy var dateLabel: UILabel = {
         let dateLabel = UILabel()
         dateLabel.textColor = .white
         dateLabel.textAlignment = .left
@@ -25,14 +22,15 @@ class ImageListCell: UITableViewCell {
         return dateLabel
     }()
 
-     lazy var likeButton: UIButton = {
+    private lazy var likeButton: UIButton = {
         let button = UIButton()
-        button.addTarget(self, action: #selector(likeButtonPressed), for: .touchUpInside)
+        button.addTarget(
+            self, action: #selector(likeButtonPressed), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
-    //MARK: Lifecycle
+    //MARK: - Lifecycle
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -42,7 +40,17 @@ class ImageListCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    @objc func likeButtonPressed(_ sender: Any) {
+    //MARK: - Methods
+    @objc private func likeButtonPressed(_ sender: Any) {
+    }
+
+    func configureCell(date: String, image: UIImage, isLiked: Bool) {
+        let likeButtonImage =
+            isLiked
+            ? UIImage(named: "likeButtonOn") : UIImage(named: "likeButtonOff")
+        self.dateLabel.text = date
+        self.cellImage.image = image
+        self.likeButton.setImage(likeButtonImage, for: .normal)
     }
 
     //MARK: Setup UI
@@ -64,13 +72,13 @@ class ImageListCell: UITableViewCell {
                 equalTo: self.contentView.trailingAnchor, constant: -16),
             cellImage.leadingAnchor.constraint(
                 equalTo: self.contentView.leadingAnchor, constant: 16),
-            
+
             // Date label
             dateLabel.bottomAnchor.constraint(
                 equalTo: cellImage.bottomAnchor, constant: -12),
             dateLabel.leadingAnchor.constraint(
                 equalTo: cellImage.leadingAnchor, constant: 24),
-            
+
             //likeButton
             likeButton.widthAnchor.constraint(equalToConstant: 45),
             likeButton.heightAnchor.constraint(equalToConstant: 45),

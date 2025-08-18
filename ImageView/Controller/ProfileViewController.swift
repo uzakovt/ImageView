@@ -36,6 +36,8 @@ final class ProfileViewController: UIViewController {
         let image = UIImage(named: "placeholder")
         imageView.image = image
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.layer.masksToBounds = true
+        imageView.layer.cornerRadius = 35
         return imageView
     }()
     private lazy var logOutButton: UIButton = {
@@ -81,14 +83,12 @@ final class ProfileViewController: UIViewController {
             let profileImageURL = ProfileImageService.shared.avatarURL,
             let url = URL(string: profileImageURL)
         else { return }
-        let processor = RoundCornerImageProcessor(cornerRadius: 35)
         profileImageView.kf.indicatorType = .activity
 
         profileImageView.kf.setImage(
             with: url,
             placeholder: UIImage(named: "placeholeder"),
             options: [
-                .processor(processor),
                 .scaleFactor(UIScreen.main.scale),
                 .transition(.fade(1)),
                 .cacheOriginalImage,

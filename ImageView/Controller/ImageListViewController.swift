@@ -3,6 +3,7 @@ import UIKit
 final class ImageListViewController: UIViewController {
 
     //MARK: - Variables
+    private let imageListService = ImagesListService.shared
     private let photosNames: [String] = Array(0...20).map({ "\($0)" })
     private var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -81,10 +82,17 @@ extension ImageListViewController: UITableViewDelegate, UITableViewDataSource {
     {
         let cell = tableView.dequeueReusableCell(
             withIdentifier: ImageListCell.reuseIdentifier, for: indexPath)
-        guard let imageListCell = cell as? ImageListCell else {
+        guard let imageListCell = cell as? ImageListCell,
+            let image = UIImage(named: photosNames[indexPath.row])
+        else {
             return UITableViewCell()
         }
-        configCell(for: imageListCell, with: indexPath)
+
+        imageListCell.configureCell(
+            date: dateFormatter.string(from: Date()),
+            image: image,
+            isLiked: indexPath.row % 2 == 0
+        )
         return imageListCell
 
     }
@@ -97,18 +105,8 @@ extension ImageListViewController: UITableViewDelegate, UITableViewDataSource {
         singleImageVC.modalPresentationStyle = .fullScreen
         present(singleImageVC, animated: true)
     }
-
-    func configCell(for cell: ImageListCell, with indexPath: IndexPath) {
-        let cell = cell
-        guard let image = UIImage(named: photosNames[indexPath.row]) else {
-            return
-        }
-        cell.cellImage.image = image
-        cell.dateLabel.text = dateFormatter.string(from: Date())
-        cell.likeButton.setImage(
-            indexPath.row % 2 == 0
-                ? UIImage(named: "likeButtonOn")
-                : UIImage(named: "likeButtonOff"),
-            for: .normal)
-    }
+    
+//    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//        imageListService.fetchPhotosNextPage()
+//    }
 }

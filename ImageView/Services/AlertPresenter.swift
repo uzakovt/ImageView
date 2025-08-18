@@ -1,7 +1,7 @@
 import UIKit
 
 protocol AlertPresenterProtocol {
-    func showAlert(alertData: AlertModel?, id: String)
+    static func showAlert(alertData: AlertModel?, id: String, delegate: AlertPresenterDelegate)
 }
 
 protocol AlertPresenterDelegate: AnyObject {
@@ -9,11 +9,9 @@ protocol AlertPresenterDelegate: AnyObject {
 }
 
 final class AlertPresenter: AlertPresenterProtocol {
-    weak var delegate: AlertPresenterDelegate?
-
-    func showAlert(alertData: AlertModel?, id: String) {
+    static func showAlert(alertData: AlertModel?, id: String, delegate: AlertPresenterDelegate) {
         guard let alertData else {
-            delegate?.didPresentAlert(alert: nil)
+            delegate.didPresentAlert(alert: nil)
             return
         }
 
@@ -28,6 +26,6 @@ final class AlertPresenter: AlertPresenterProtocol {
         }
         alert.addAction(action)
         alert.view.accessibilityIdentifier = id
-        delegate?.didPresentAlert(alert: alert)
+        delegate.didPresentAlert(alert: alert)
     }
 }
