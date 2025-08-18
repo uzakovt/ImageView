@@ -2,40 +2,33 @@ import UIKit
 import WebKit
 
 final class WebViewViewController: UIViewController {
+    
+    //MARK: - Variables
     weak var delegate: WebViewViewControllerDelegate?
     private var webView = WKWebView()
     private var progressBar = UIProgressView()
-    private let progressKeyPath = #keyPath(WKWebView.estimatedProgress)
-
-    override func viewWillAppear(_ animated: Bool) {
-        webView.addObserver(
-            self, forKeyPath: progressKeyPath, options: .new, context: nil)
-    }
-
+    private var estimatedProgressObservation: NSKeyValueObservation?
+    private let appearance = UINavigationBarAppearance()
+    
+    //MARK: - Lifecycle
     override func viewDidLoad() {
         webView.navigationDelegate = self
         webViewLoad()
         loadAuthView()
         progressBarView()
-    }
+        setNavigationItemAppearance()
 
-    override func viewDidDisappear(_ animated: Bool) {
-        webView.removeObserver(self, forKeyPath: progressKeyPath, context: nil)
+        estimatedProgressObservation = webView.observe(
+            \.estimatedProgress,
+            options: [.new],
+            changeHandler: { [weak self] _, _ in
+                guard let self else { return }
+                self.updateProgress()
+            }
+        )
     }
-
-    override func observeValue(
-        forKeyPath keyPath: String?, of object: Any?,
-        change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?
-    ) {
-        if keyPath == progressKeyPath {
-            updateProgress()
-        } else {
-            super.observeValue(
-                forKeyPath: keyPath, of: object, change: change,
-                context: context)
-        }
-    }
-
+    
+    //MARK: - Methods
     private func updateProgress() {
         progressBar.progress = Float(webView.estimatedProgress)
         progressBar.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
@@ -53,6 +46,14 @@ final class WebViewViewController: UIViewController {
             webView.topAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.topAnchor),
         ])
+    }
+    
+    private func setNavigationItemAppearance() {
+        appearance.configureWithDefaultBackground()
+        appearance.backgroundColor = UIColor.white
+        self.navigationItem.standardAppearance = appearance
+        self.navigationItem.scrollEdgeAppearance = appearance
+        self.navigationItem.compactAppearance = appearance
     }
 
     private func progressBarView() {
@@ -97,6 +98,7 @@ final class WebViewViewController: UIViewController {
 
 }
 
+//MARK: - WKNavigationDelegate
 extension WebViewViewController: WKNavigationDelegate {
     func webView(
         _ webView: WKWebView,
