@@ -129,8 +129,16 @@ final class SingleImageController: UIViewController {
                 let alert = AlertModel(
                     title: "Что-то пошло не так(",
                     text: "Не удалось войти в систему",
-                    buttonText: "ОК",
-                    completion: { self.dismiss(animated: true) }
+                    actions: [
+                        UIAlertAction(
+                            title: "ОK", style: .default,
+                            handler: {
+                                [weak self] _ in
+                                guard let self else { return }
+                                self.dismiss(animated: true)
+                            }
+                        )
+                    ]
                 )
                 AlertPresenter.showAlert(alertData: alert, id: "singleImageViewController", delegate: self)
             }

@@ -76,7 +76,7 @@ extension ImageListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int)
         -> Int
     {
-        return photos.count
+        photos.count
     }
 
     func tableView(
@@ -142,7 +142,10 @@ extension ImageListViewController: ImagesListCellDelegate {
         UIBlockingProgressHUD.show()
         imageListService.changeLike(photoId: photo.id, isLike: !photo.isLiked) {
             [weak self] result in
-            guard let self else { return }
+            guard let self else {
+                UIBlockingProgressHUD.dismiss()
+                return
+            }
             switch result {
             case .success:
                 self.photos = self.imageListService.photos

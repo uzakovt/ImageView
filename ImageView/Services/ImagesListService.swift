@@ -3,7 +3,7 @@ import Foundation
 final class ImagesListService {
     var photos: [Photo] = []
     private var lastLoadedPage: Int = 0
-    private var task: URLSessionTask? = nil
+    private var task: URLSessionTask?
     private let urlSession = URLSession.shared
     let didChangeNotification = Notification.Name(
         rawValue: "ImagesListServiceDidChange")
@@ -11,27 +11,6 @@ final class ImagesListService {
     private let tokenStorage = OAuth2TokenStorage()
 
     private init() {}
-
-    private func makePhotosPageRequest(page: Int) -> URLRequest? {
-        let token = tokenStorage.token
-        guard let token else { return nil }
-        let baseURL = URL(string: "https://api.unsplash.com")
-        let url = URL(
-            string: "/photos" + "?page=\(page)" + "&per_page=10",
-            relativeTo: baseURL
-        )
-        guard let url else {
-            print(
-                "ImageListService/makePhotosPageRequest: URL error - Unable to unwrap URL"
-            )
-            assertionFailure("Unable to unwrap URL for ImageListService")
-            return nil
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        return request
-    }
     
     func cleanImageListData() {
         self.photos = []
@@ -75,6 +54,27 @@ final class ImagesListService {
         self.task = task
         task.resume()
     }
+    
+    private func makePhotosPageRequest(page: Int) -> URLRequest? {
+        let token = tokenStorage.token
+        guard let token else { return nil }
+        let baseURL = URL(string: "https://api.unsplash.com")
+        let url = URL(
+            string: "/photos" + "?page=\(page)" + "&per_page=10",
+            relativeTo: baseURL
+        )
+        guard let url else {
+            print(
+                "ImageListService/makePhotosPageRequest: URL error - Unable to unwrap URL"
+            )
+            assertionFailure("Unable to unwrap URL for ImageListService")
+            return nil
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = HttpMethods.get
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        return request
+    }
 
     func changeLike(
         photoId: String, isLike: Bool,
@@ -90,7 +90,7 @@ final class ImagesListService {
             return
         }
         var request = URLRequest(url: url)
-        request.httpMethod = isLike ? "POST" : "DELETE"
+        request.httpMethod = isLike ? HttpMethods.post : HttpMethods.delete
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
         let task = urlSession.dataTask(with: request) { [weak self] data, response, error in
@@ -115,8 +115,8 @@ final class ImagesListService {
     }
 
     private func updatePhoto(id: String) {
-        if let index = self.photos.firstIndex(where: { $0.id == id }) {
-            let photo = self.photos[index]
+        if let index = photos.firstIndex(where: { $0.id == id }) {
+            let photo = photos[index]
             let newPhoto = Photo(
                 id: photo.id,
                 size: photo.size,
@@ -126,7 +126,7 @@ final class ImagesListService {
                 largeImageURL: photo.largeImageURL,
                 isLiked: !photo.isLiked
             )
-                self.photos[index] = newPhoto
+                photos[index] = newPhoto
         }
     }
 }

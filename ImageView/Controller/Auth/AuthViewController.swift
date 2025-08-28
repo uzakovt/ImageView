@@ -22,7 +22,8 @@ final class AuthViewController: UIViewController {
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
         button.layer.cornerRadius = 16
         button.layer.backgroundColor = UIColor.white.cgColor
-        button.addTarget(self, action: #selector(logInButtonPressed),
+        button.addTarget(
+            self, action: #selector(logInButtonPressed),
             for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -41,7 +42,7 @@ final class AuthViewController: UIViewController {
         webViewVC.modalPresentationStyle = .fullScreen
         show(webViewVC, sender: self)
     }
-    
+
     @objc private func logInButtonPressed() {
         navigateToWebView()
     }
@@ -67,7 +68,7 @@ final class AuthViewController: UIViewController {
                 equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             enterButton.bottomAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -90),
-            
+
             //profileImageVIew
             imageView.heightAnchor.constraint(equalToConstant: 60),
             imageView.widthAnchor.constraint(equalToConstant: 60),
@@ -94,12 +95,19 @@ extension AuthViewController: WebViewViewControllerDelegate {
             case .failure(let error):
                 let alertdata = AlertModel(
                     title: "Что-то пошло не так(",
-                    text: "Не удалось войти в систему", buttonText: "Ок",
-                    completion: { [weak self] in
-                        guard let self else { return }
-                        self.dismiss(animated: true)
-                    }
+                    text: "Не удалось войти в систему",
+                    actions: [
+                        UIAlertAction(
+                            title: "Ок", style: .default,
+                            handler: {
+                                [weak self] _ in
+                                guard let self else { return }
+                                self.dismiss(animated: true)
+                            }
+                        )
+                    ]
                 )
+
                 AlertPresenter.showAlert(
                     alertData: alertdata, id: "authErrorAlert", delegate: self)
                 print(

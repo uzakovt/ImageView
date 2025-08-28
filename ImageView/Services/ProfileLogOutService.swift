@@ -31,7 +31,7 @@ final class ProfileLogOutService {
     private func cleanToken() {
         let removeToken: Bool = KeychainWrapper.standard.removeObject(
             forKey: "AuthToken")
-        if removeToken == false {
+        if !removeToken {
             print("Cannot clear the token")
         }
     }

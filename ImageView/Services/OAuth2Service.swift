@@ -17,27 +17,6 @@ class OAuth2Service: OAuth2ServiceProtocol {
 
     private init() {}
 
-    private func makeOAuthTokenRequest(code: String) -> URLRequest? {
-        let baseURL = URL(string: "https://unsplash.com")
-        let url = URL(
-            string: "/oauth/token"
-                + "?client_id=\(Constants.accessKey)"
-                + "&&client_secret=\(Constants.secretKey)"
-                + "&&redirect_uri=\(Constants.redirectURI)"
-                + "&&code=\(code)"
-                + "&&grant_type=authorization_code",
-            relativeTo: baseURL
-        )
-        guard let url else {
-            print("OAuth2Service/makeOauthRequest: URL error - Unable to unwrap URL")
-            assertionFailure("Unable to unwrap URL for OAUTHTOKEN")
-            return nil
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        return request
-    }
-
     func fetchOAuthToken(
         code: String, completion: @escaping (Result<String, Error>) -> Void
     ) {
@@ -82,5 +61,26 @@ class OAuth2Service: OAuth2ServiceProtocol {
         }
         self.task = task
         task.resume()
+    }
+    
+    private func makeOAuthTokenRequest(code: String) -> URLRequest? {
+        let baseURL = URL(string: "https://unsplash.com")
+        let url = URL(
+            string: "/oauth/token"
+                + "?client_id=\(Constants.accessKey)"
+                + "&&client_secret=\(Constants.secretKey)"
+                + "&&redirect_uri=\(Constants.redirectURI)"
+                + "&&code=\(code)"
+                + "&&grant_type=authorization_code",
+            relativeTo: baseURL
+        )
+        guard let url else {
+            print("OAuth2Service/makeOauthRequest: URL error - Unable to unwrap URL")
+            assertionFailure("Unable to unwrap URL for OAUTHTOKEN")
+            return nil
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = HttpMethods.post
+        return request
     }
 }

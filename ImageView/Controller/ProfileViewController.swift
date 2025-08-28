@@ -72,7 +72,20 @@ final class ProfileViewController: UIViewController {
     
     //MARK: - Methods
     @objc func logOutButtonPressed(_ sender: Any) {
-        logOutService.logOut()
+        let yesAction = UIAlertAction(title: "Да", style: .default, handler: {
+            [weak self] _ in
+            guard let self else { return }
+            self.logOutService.logOut()
+        })
+        let cancelAction = UIAlertAction(title: "Нет", style: .default, handler: {
+                [weak self] _ in
+                guard let self else { return }
+                self.dismiss(animated: true)
+            })
+        let alert = AlertModel(title: "Пока, пока!", text: "Уверены, что хотите выйти?", actions: [
+            yesAction, cancelAction
+        ])
+        AlertPresenter.showAlert(alertData: alert, id: "logOut", delegate: self)
     }
 
     private func updateAvatar() {
@@ -154,5 +167,12 @@ final class ProfileViewController: UIViewController {
             logOutButton.centerYAnchor.constraint(
                 equalTo: profileImageView.centerYAnchor),
         ])
+    }
+}
+
+extension ProfileViewController: AlertPresenterDelegate {
+    func didPresentAlert(alert: UIAlertController?) {
+        guard let alert else { return }
+        present(alert, animated: true)
     }
 }

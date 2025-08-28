@@ -1,7 +1,7 @@
 import Kingfisher
 import UIKit
 
-class ImageListCell: UITableViewCell {
+final class ImageListCell: UITableViewCell {
     static let reuseIdentifier = "ImageListCell"
     private let imageService = ImagesListService.shared
     weak var delegate: ImagesListCellDelegate?
@@ -64,7 +64,7 @@ class ImageListCell: UITableViewCell {
         self.isLiked = isLiked
         let likeButtonImage =
             isLiked
-            ? UIImage(named: "likeButtonOn") : UIImage(named: "likeButtonOff")
+        ? UIImage(resource: .likeButtonOn) : UIImage(resource: .likeButtonOff)
         guard let url = URL(string: image)
         else { return }
         cellImage.kf.indicatorType = .activity
