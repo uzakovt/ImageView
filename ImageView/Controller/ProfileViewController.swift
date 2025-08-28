@@ -8,6 +8,7 @@ final class ProfileViewController: UIViewController {
     private var profileImageServiceObserver: NSObjectProtocol?
     private let authStorage = OAuth2TokenStorage()
     private let profileService = ProfileService.shared
+    private let logOutService = ProfileLogOutService.shared
 
     // MARK: - UI Components
     private lazy var userName: UILabel = {
@@ -44,7 +45,7 @@ final class ProfileViewController: UIViewController {
         let button = UIButton()
         button.setImage(UIImage(named: "exit"), for: .normal)
         button.addTarget(
-            ProfileViewController.self, action: #selector(logOutButtonPressed),
+            nil, action: #selector(logOutButtonPressed),
             for: .touchUpInside)
         button.tintColor = .ypRed
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -71,11 +72,7 @@ final class ProfileViewController: UIViewController {
     
     //MARK: - Methods
     @objc func logOutButtonPressed(_ sender: Any) {
-        let removeToken: Bool = KeychainWrapper.standard.removeObject(
-            forKey: "AuthToken")
-        if removeToken == false {
-            print("cannot logout")
-        }
+        logOutService.logOut()
     }
 
     private func updateAvatar() {

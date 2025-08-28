@@ -1,8 +1,10 @@
 import Foundation
 
 struct UrlsResult: Codable {
+    let raw: String
     let full: String
     let regular: String
+    let small: String
     let thumb: String
 }
 
@@ -11,7 +13,7 @@ struct PhotoResult: Codable {
     let createdAt: String
     let width: Int
     let height: Int
-    let welcomeDescription: String
+    let welcomeDescription: String?
     let isLiked: Bool
     let urls: UrlsResult
     
@@ -26,6 +28,7 @@ struct PhotoResult: Codable {
     }
 }
 
-struct PhotosResult: Codable {
-    let photos: [PhotoResult]
+struct LikedPhotoResult: Codable {
+    let photo: PhotoResult?
 }
+

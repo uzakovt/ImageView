@@ -88,9 +88,24 @@ extension SplashScreenController: AuthServiceDelegate {
                 self.switchToTabBarController()
             case .failure(let error):
                 print(error)
-                // TODO: show error for profile loading
+                let alert = AlertModel(
+                    title: "Что-то пошло не так(",
+                    text: "Не удалось войти в систему",
+                    buttonText: "ОК",
+                    completion: { self.dismiss(animated: true) }
+                )
+                AlertPresenter.showAlert(alertData: alert, id: "fetchProfile", delegate: self)
                 break
             }
         }
     }
+}
+
+extension SplashScreenController: AlertPresenterDelegate {
+    func didPresentAlert(alert: UIAlertController?) {
+        guard let alert else { return }
+        present(alert, animated: true)
+    }
+    
+    
 }

@@ -11,6 +11,10 @@ final class ProfileService {
     private(set) var profile: Profile?
 
     private init() {}
+    
+    func cleanProfileData() {
+        self.profile = nil
+    }
 
     func fetchProfile(
         _ token: String,
@@ -61,4 +65,5 @@ final class ProfileService {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
     }
+    
 }

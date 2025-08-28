@@ -1,7 +1,18 @@
+import Kingfisher
 import UIKit
 
 class ImageListCell: UITableViewCell {
     static let reuseIdentifier = "ImageListCell"
+    private let imageService = ImagesListService.shared
+    weak var delegate: ImagesListCellDelegate?
+    private var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .none
+        return formatter
+    }()
+    var id: String?
+    var isLiked: Bool?
 
     //MARK: - UI Components
     private lazy var cellImage: UIImageView = {
@@ -31,7 +42,10 @@ class ImageListCell: UITableViewCell {
     }()
 
     //MARK: - Lifecycle
-
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        cellImage.kf.cancelDownloadTask()
+    }
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -42,15 +56,40 @@ class ImageListCell: UITableViewCell {
 
     //MARK: - Methods
     @objc private func likeButtonPressed(_ sender: Any) {
+        delegate?.imageListCellDidTapLike(self)
     }
 
-    func configureCell(date: String, image: UIImage, isLiked: Bool) {
+    func configureCell(id: String, date: Date?, image: String, isLiked: Bool) {
+        self.id = id
+        self.isLiked = isLiked
         let likeButtonImage =
             isLiked
             ? UIImage(named: "likeButtonOn") : UIImage(named: "likeButtonOff")
-        self.dateLabel.text = date
-        self.cellImage.image = image
+        guard let url = URL(string: image)
+        else { return }
+        cellImage.kf.indicatorType = .activity
+        cellImage.kf.setImage(
+            with: url,
+            placeholder: UIImage(named: "image_placeholder"),
+            options: [
+                .scaleFactor(UIScreen.main.scale),
+                .transition(.fade(1)),
+                .forceRefresh,
+            ])
+        if let date {
+            self.dateLabel.text = dateFormatter.string(from: date)
+        } else {
+            dateLabel.text = dateFormatter.string(from: Date())
+        }
         self.likeButton.setImage(likeButtonImage, for: .normal)
+    }
+
+    func setIsLiked(isLiked: Bool) {
+        likeButton.setImage(
+            isLiked
+                ? UIImage(named: "likeButtonOn")
+                : UIImage(named: "likeButtonOff"),
+            for: .normal)
     }
 
     //MARK: Setup UI

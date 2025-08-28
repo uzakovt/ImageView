@@ -1,9 +1,10 @@
+import Kingfisher
 import UIKit
 
 final class SingleImageController: UIViewController {
 
     // MARK: - Variables
-    var image: UIImage? {
+    var image: Photo? {
         didSet {
             prepareImage()
         }
@@ -18,7 +19,7 @@ final class SingleImageController: UIViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
-
+    
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -61,7 +62,7 @@ final class SingleImageController: UIViewController {
         view.addSubview(backButton)
         view.addSubview(shareButton)
         scrollView.addSubview(imageView)
-        
+
         NSLayoutConstraint.activate([
             // Scroll View
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -104,11 +105,36 @@ final class SingleImageController: UIViewController {
 
     // MARK: - Methods
     private func prepareImage() {
-        guard isViewLoaded, let image else { return }
-
-        imageView.image = image
-        imageView.frame.size = image.size
-        rescaleAndCenterImageInScrollView(image: image)
+        guard isViewLoaded, let image,
+            let url = URL(string: image.largeImageURL)
+        else { return }
+        UIBlockingProgressHUD.show()
+        imageView.kf.setImage(
+            with: url,
+            options: [
+                .scaleFactor(UIScreen.main.scale),
+                .transition(.fade(1)),
+                .forceRefresh,
+            ]
+        ) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            guard let self else { return }
+            switch result {
+            case .success:
+                self.imageView.frame.size = image.size
+                guard let image = self.imageView.image else { return }
+                self.rescaleAndCenterImageInScrollView(image: image)
+            case .failure(let error):
+                print(String(describing: error))
+                let alert = AlertModel(
+                    title: "Что-то пошло не так(",
+                    text: "Не удалось войти в систему",
+                    buttonText: "ОК",
+                    completion: { self.dismiss(animated: true) }
+                )
+                AlertPresenter.showAlert(alertData: alert, id: "singleImageViewController", delegate: self)
+            }
+        }
     }
 
     private func rescaleAndCenterImageInScrollView(image: UIImage) {
@@ -122,6 +148,14 @@ final class SingleImageController: UIViewController {
         let scale = min(maxZoomScale, max(minZoomScale, min(hScale, vScale)))
         scrollView.setZoomScale(scale, animated: false)
         scrollView.layoutIfNeeded()
+        let newContentSize = scrollView.contentSize
+        let x = (newContentSize.width - visibleRectSize.width) / 2
+        let y = (newContentSize.height - visibleRectSize.height) / 2
+        scrollView.setContentOffset(CGPoint(x: x, y: y), animated: false)
+    }
+    
+    private func centerImage() {
+        let visibleRectSize = scrollView.bounds.size
         let newContentSize = scrollView.contentSize
         let x = (newContentSize.width - visibleRectSize.width) / 2
         let y = (newContentSize.height - visibleRectSize.height) / 2
@@ -147,5 +181,19 @@ final class SingleImageController: UIViewController {
 extension SingleImageController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return imageView
+    }
+    func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
+        let visibleRectSize = scrollView.bounds.size
+        let newContentSize = scrollView.contentSize
+        let x = (newContentSize.width - visibleRectSize.width) / 2
+        let y = (newContentSize.height - visibleRectSize.height) / 2
+        self.scrollView.setContentOffset(CGPoint(x: x, y: y), animated: true)
+    }
+}
+
+extension SingleImageController :AlertPresenterDelegate {
+    func didPresentAlert(alert: UIAlertController?) {
+        guard let alert else { return }
+        present(alert, animated: true)
     }
 }
