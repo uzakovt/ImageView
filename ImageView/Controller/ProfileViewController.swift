@@ -8,6 +8,7 @@ final class ProfileViewController: UIViewController {
     private var profileImageServiceObserver: NSObjectProtocol?
     private let authStorage = OAuth2TokenStorage()
     private let profileService = ProfileService.shared
+    private let logOutService = ProfileLogOutService.shared
 
     // MARK: - UI Components
     private lazy var userName: UILabel = {
@@ -36,13 +37,15 @@ final class ProfileViewController: UIViewController {
         let image = UIImage(named: "placeholder")
         imageView.image = image
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.layer.masksToBounds = true
+        imageView.layer.cornerRadius = 35
         return imageView
     }()
     private lazy var logOutButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(named: "exit"), for: .normal)
         button.addTarget(
-            ProfileViewController.self, action: #selector(logOutButtonPressed),
+            nil, action: #selector(logOutButtonPressed),
             for: .touchUpInside)
         button.tintColor = .ypRed
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -69,11 +72,20 @@ final class ProfileViewController: UIViewController {
     
     //MARK: - Methods
     @objc func logOutButtonPressed(_ sender: Any) {
-        let removeToken: Bool = KeychainWrapper.standard.removeObject(
-            forKey: "AuthToken")
-        if removeToken == false {
-            print("cannot logout")
-        }
+        let yesAction = UIAlertAction(title: "Да", style: .default, handler: {
+            [weak self] _ in
+            guard let self else { return }
+            self.logOutService.logOut()
+        })
+        let cancelAction = UIAlertAction(title: "Нет", style: .default, handler: {
+                [weak self] _ in
+                guard let self else { return }
+                self.dismiss(animated: true)
+            })
+        let alert = AlertModel(title: "Пока, пока!", text: "Уверены, что хотите выйти?", actions: [
+            yesAction, cancelAction
+        ])
+        AlertPresenter.showAlert(alertData: alert, id: "logOut", delegate: self)
     }
 
     private func updateAvatar() {
@@ -81,14 +93,12 @@ final class ProfileViewController: UIViewController {
             let profileImageURL = ProfileImageService.shared.avatarURL,
             let url = URL(string: profileImageURL)
         else { return }
-        let processor = RoundCornerImageProcessor(cornerRadius: 35)
         profileImageView.kf.indicatorType = .activity
 
         profileImageView.kf.setImage(
             with: url,
             placeholder: UIImage(named: "placeholeder"),
             options: [
-                .processor(processor),
                 .scaleFactor(UIScreen.main.scale),
                 .transition(.fade(1)),
                 .cacheOriginalImage,
@@ -157,5 +167,12 @@ final class ProfileViewController: UIViewController {
             logOutButton.centerYAnchor.constraint(
                 equalTo: profileImageView.centerYAnchor),
         ])
+    }
+}
+
+extension ProfileViewController: AlertPresenterDelegate {
+    func didPresentAlert(alert: UIAlertController?) {
+        guard let alert else { return }
+        present(alert, animated: true)
     }
 }

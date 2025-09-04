@@ -1,13 +1,21 @@
+import Kingfisher
 import UIKit
 
-class ImageListCell: UITableViewCell {
+final class ImageListCell: UITableViewCell {
     static let reuseIdentifier = "ImageListCell"
-    var date: String?
-    var image: UIImage?
+    private let imageService = ImagesListService.shared
+    weak var delegate: ImagesListCellDelegate?
+    private var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .none
+        return formatter
+    }()
+    var id: String?
     var isLiked: Bool?
 
-    //MARK: UI Components
-     lazy var cellImage: UIImageView = {
+    //MARK: - UI Components
+    private lazy var cellImage: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleToFill
         iv.layer.cornerRadius = 16
@@ -16,7 +24,7 @@ class ImageListCell: UITableViewCell {
         return iv
     }()
 
-     lazy var dateLabel: UILabel = {
+    private lazy var dateLabel: UILabel = {
         let dateLabel = UILabel()
         dateLabel.textColor = .white
         dateLabel.textAlignment = .left
@@ -25,15 +33,19 @@ class ImageListCell: UITableViewCell {
         return dateLabel
     }()
 
-     lazy var likeButton: UIButton = {
+    private lazy var likeButton: UIButton = {
         let button = UIButton()
-        button.addTarget(self, action: #selector(likeButtonPressed), for: .touchUpInside)
+        button.addTarget(
+            self, action: #selector(likeButtonPressed), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
-    //MARK: Lifecycle
-
+    //MARK: - Lifecycle
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        cellImage.kf.cancelDownloadTask()
+    }
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -42,7 +54,42 @@ class ImageListCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    @objc func likeButtonPressed(_ sender: Any) {
+    //MARK: - Methods
+    @objc private func likeButtonPressed(_ sender: Any) {
+        delegate?.imageListCellDidTapLike(self)
+    }
+
+    func configureCell(id: String, date: Date?, image: String, isLiked: Bool) {
+        self.id = id
+        self.isLiked = isLiked
+        let likeButtonImage =
+            isLiked
+        ? UIImage(resource: .likeButtonOn) : UIImage(resource: .likeButtonOff)
+        guard let url = URL(string: image)
+        else { return }
+        cellImage.kf.indicatorType = .activity
+        cellImage.kf.setImage(
+            with: url,
+            placeholder: UIImage(named: "image_placeholder"),
+            options: [
+                .scaleFactor(UIScreen.main.scale),
+                .transition(.fade(1)),
+                .forceRefresh,
+            ])
+        if let date {
+            self.dateLabel.text = dateFormatter.string(from: date)
+        } else {
+            dateLabel.text = dateFormatter.string(from: Date())
+        }
+        self.likeButton.setImage(likeButtonImage, for: .normal)
+    }
+
+    func setIsLiked(isLiked: Bool) {
+        likeButton.setImage(
+            isLiked
+                ? UIImage(named: "likeButtonOn")
+                : UIImage(named: "likeButtonOff"),
+            for: .normal)
     }
 
     //MARK: Setup UI
@@ -64,13 +111,13 @@ class ImageListCell: UITableViewCell {
                 equalTo: self.contentView.trailingAnchor, constant: -16),
             cellImage.leadingAnchor.constraint(
                 equalTo: self.contentView.leadingAnchor, constant: 16),
-            
+
             // Date label
             dateLabel.bottomAnchor.constraint(
                 equalTo: cellImage.bottomAnchor, constant: -12),
             dateLabel.leadingAnchor.constraint(
                 equalTo: cellImage.leadingAnchor, constant: 24),
-            
+
             //likeButton
             likeButton.widthAnchor.constraint(equalToConstant: 45),
             likeButton.heightAnchor.constraint(equalToConstant: 45),

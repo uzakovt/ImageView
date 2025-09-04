@@ -1,16 +1,15 @@
 import UIKit
 
 final class SplashScreenController: UIViewController {
-    
+
     //MARK: Variables
-    
+
     private let storage = OAuth2TokenStorage()
     private let profileService = ProfileService.shared
     private let profileImageService = ProfileImageService.shared
-    
-    
+
     //MARK: Lifecycle
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpUI()
@@ -24,15 +23,15 @@ final class SplashScreenController: UIViewController {
             navigateToAuth()
         }
     }
-    
-    
+
     //MARK: Methods
     private func navigateToAuth() {
         let authVC = AuthViewController()
         authVC.delegate = self
-        let authNavController = UINavigationController(rootViewController: authVC)
+        let authNavController = UINavigationController(
+            rootViewController: authVC)
         authNavController.modalPresentationStyle = .fullScreen
-        
+
         present(authNavController, animated: true)
     }
 
@@ -41,12 +40,11 @@ final class SplashScreenController: UIViewController {
             assertionFailure("Invalid window configuration")
             return
         }
-        
 
         let tabBarController = TabBarController()
         window.rootViewController = tabBarController
     }
-    
+
     private func setUpUI() {
         view.backgroundColor = .ypBg
         let image = UIImage(named: "LaunchScreenIcon")
@@ -74,23 +72,48 @@ extension SplashScreenController: AuthServiceDelegate {
         }
         fetchProfile(token)
     }
-    
+
     private func fetchProfile(_ token: String) {
         UIBlockingProgressHUD.show()
         profileService.fetchProfile(token) { [weak self] result in
             UIBlockingProgressHUD.dismiss()
-            
+
             guard let self else { return }
-            
+
             switch result {
             case .success(let profile):
-                profileImageService.fetchProfileImageURL(profile.username) { _ in }
+                profileImageService.fetchProfileImageURL(profile.username) {
+                    _ in
+                }
                 self.switchToTabBarController()
             case .failure(let error):
                 print(error)
-                // TODO: show error for profile loading
+                let alert = AlertModel(
+                    title: "Что-то пошло не так(",
+                    text: "Не удалось войти в систему",
+                    actions: [
+                        UIAlertAction(
+                            title: "ОК", style: .default,
+                            handler: {
+                                [weak self] _ in
+                                guard let self else { return }
+                                self.dismiss(animated: true)
+                            }
+                        )
+                    ]
+                )
+                AlertPresenter.showAlert(
+                    alertData: alert, id: "fetchProfile", delegate: self)
                 break
             }
         }
     }
+}
+
+extension SplashScreenController: AlertPresenterDelegate {
+    func didPresentAlert(alert: UIAlertController?) {
+        guard let alert else { return }
+        present(alert, animated: true)
+    }
+
 }

@@ -14,7 +14,11 @@ final class ProfileImageService {
     private let urlSession = URLSession.shared
 
     private init() {}
-
+    
+    func cleanProfileImageData() {
+        self.avatarURL = nil
+        self.task = nil
+    }
     func fetchProfileImageURL(
         _ username: String,
         completion: @escaping (Result<String, Error>) -> Void
@@ -87,7 +91,7 @@ final class ProfileImageService {
         }
 
         var request = URLRequest(url: url)
-        request.httpMethod = "GET"
+        request.httpMethod = HttpMethods.get
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
     }

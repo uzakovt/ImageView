@@ -6,7 +6,6 @@ final class AuthViewController: UIViewController {
     //MARK: - Variables
     weak var delegate: AuthServiceDelegate?
     private var authService: OAuth2ServiceProtocol?
-    private var alertPresenter: AlertPresenterProtocol?
 
     //MARK: - UI Components
     private lazy var imageView: UIImageView = {
@@ -18,12 +17,13 @@ final class AuthViewController: UIViewController {
     }()
     private lazy var enterButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Log In", for: .normal)
+        button.setTitle("Войти", for: .normal)
         button.setTitleColor(.ypBlack, for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
         button.layer.cornerRadius = 16
         button.layer.backgroundColor = UIColor.white.cgColor
-        button.addTarget(self, action: #selector(logInButtonPressed),
+        button.addTarget(
+            self, action: #selector(logInButtonPressed),
             for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -32,9 +32,6 @@ final class AuthViewController: UIViewController {
     //MARK: - Lifecycle
     override func viewDidLoad() {
         authService = OAuth2Service.shared
-        let alertPresenter = AlertPresenter()
-        alertPresenter.delegate = self
-        self.alertPresenter = alertPresenter
         setupUI()
     }
 
@@ -45,7 +42,7 @@ final class AuthViewController: UIViewController {
         webViewVC.modalPresentationStyle = .fullScreen
         show(webViewVC, sender: self)
     }
-    
+
     @objc private func logInButtonPressed() {
         navigateToWebView()
     }
@@ -71,7 +68,7 @@ final class AuthViewController: UIViewController {
                 equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             enterButton.bottomAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -90),
-            
+
             //profileImageVIew
             imageView.heightAnchor.constraint(equalToConstant: 60),
             imageView.widthAnchor.constraint(equalToConstant: 60),
@@ -97,15 +94,22 @@ extension AuthViewController: WebViewViewControllerDelegate {
                 vc.dismiss(animated: true)
             case .failure(let error):
                 let alertdata = AlertModel(
-                    title: "Что-то пошло не так",
-                    text: "Не удалось войти в систему", buttonText: "Ок",
-                    completion: { [weak self] in
-                        guard let self else { return }
-                        self.dismiss(animated: true)
-                    }
+                    title: "Что-то пошло не так(",
+                    text: "Не удалось войти в систему",
+                    actions: [
+                        UIAlertAction(
+                            title: "Ок", style: .default,
+                            handler: {
+                                [weak self] _ in
+                                guard let self else { return }
+                                self.dismiss(animated: true)
+                            }
+                        )
+                    ]
                 )
-                alertPresenter?.showAlert(
-                    alertData: alertdata, id: "authErrorAlert")
+
+                AlertPresenter.showAlert(
+                    alertData: alertdata, id: "authErrorAlert", delegate: self)
                 print(
                     "AuthViewController/ fetchOauthToken: auth error - \(error.localizedDescription)"
                 )
