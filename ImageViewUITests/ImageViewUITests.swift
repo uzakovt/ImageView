@@ -22,13 +22,13 @@ final class ImageViewUITests: XCTestCase {
         let loginTextField = webView.descendants(matching: .textField).element
         XCTAssertTrue(loginTextField.waitForExistence(timeout: 3))
         loginTextField.tap()
-        loginTextField.typeText("t@uzakovv.ru")
+        loginTextField.typeText("test login")
         loginTextField.swipeUp()
 
         let passwordTextField = webView.descendants(matching: .secureTextField).element
         XCTAssertTrue(passwordTextField.waitForExistence(timeout: 3))
         passwordTextField.tap()
-        passwordTextField.typeText("Adadad2002ad")
+        passwordTextField.typeText("test password")
         webView.swipeUp()
 
         // Нажать кнопку логина
