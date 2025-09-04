@@ -47,7 +47,7 @@ final class SplashScreenController: UIViewController {
 
     private func setUpUI() {
         view.backgroundColor = .ypBg
-        let image = UIImage(named: "LaunchScreenIcon")
+        let image = UIImage(resource: .launchScreenIcon)
         let imageView = UIImageView(image: image)
         imageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(imageView)

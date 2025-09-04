@@ -1,18 +1,19 @@
 import Kingfisher
 import UIKit
-
-final class ImageListCell: UITableViewCell {
+ class ImageListCell: UITableViewCell {
+    //MARK: - Variables
     static let reuseIdentifier = "ImageListCell"
     private let imageService = ImagesListService.shared
     weak var delegate: ImagesListCellDelegate?
+    var id: String?
+    var isLiked: Bool?
+    
     private var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.timeStyle = .none
         return formatter
     }()
-    var id: String?
-    var isLiked: Bool?
 
     //MARK: - UI Components
     private lazy var cellImage: UIImageView = {
@@ -35,6 +36,7 @@ final class ImageListCell: UITableViewCell {
 
     private lazy var likeButton: UIButton = {
         let button = UIButton()
+        button.accessibilityIdentifier = "Like button"
         button.addTarget(
             self, action: #selector(likeButtonPressed), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false

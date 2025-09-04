@@ -5,10 +5,7 @@ import UIKit
 final class ProfileViewController: UIViewController {
 
     // MARK: - Variables
-    private var profileImageServiceObserver: NSObjectProtocol?
-    private let authStorage = OAuth2TokenStorage()
-    private let profileService = ProfileService.shared
-    private let logOutService = ProfileLogOutService.shared
+    var presenter: ProfileControllerPresenterProtocol?
 
     // MARK: - UI Components
     private lazy var userName: UILabel = {
@@ -34,7 +31,7 @@ final class ProfileViewController: UIViewController {
     }()
     private lazy var profileImageView: UIImageView = {
         let imageView = UIImageView()
-        let image = UIImage(named: "placeholder")
+        let image = UIImage(resource: .placeholder)
         imageView.image = image
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.layer.masksToBounds = true
@@ -43,7 +40,8 @@ final class ProfileViewController: UIViewController {
     }()
     private lazy var logOutButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(named: "exit"), for: .normal)
+        button.accessibilityIdentifier = "logout"
+        button.setImage(UIImage(resource: .exit), for: .normal)
         button.addTarget(
             nil, action: #selector(logOutButtonPressed),
             for: .touchUpInside)
@@ -56,75 +54,14 @@ final class ProfileViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         setupUI()
-        updateProfileData()
-
-        // TODO: need to check if avatar is ready before adding observer
-        profileImageServiceObserver = NotificationCenter.default.addObserver(
-            forName: ProfileImageService.didChangeNotification, object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            guard let self else { return }
-            self.updateAvatar()
-        }
-
-        updateAvatar()
+        presenter?.updateProfileData()
+        presenter?.updateAvatarPhoto()
     }
     
     //MARK: - Methods
-    @objc func logOutButtonPressed(_ sender: Any) {
-        let yesAction = UIAlertAction(title: "Да", style: .default, handler: {
-            [weak self] _ in
-            guard let self else { return }
-            self.logOutService.logOut()
-        })
-        let cancelAction = UIAlertAction(title: "Нет", style: .default, handler: {
-                [weak self] _ in
-                guard let self else { return }
-                self.dismiss(animated: true)
-            })
-        let alert = AlertModel(title: "Пока, пока!", text: "Уверены, что хотите выйти?", actions: [
-            yesAction, cancelAction
-        ])
-        AlertPresenter.showAlert(alertData: alert, id: "logOut", delegate: self)
+    @objc private func logOutButtonPressed(_ sender: Any) {
+        presenter?.pressedLogout()
     }
-
-    private func updateAvatar() {
-        guard
-            let profileImageURL = ProfileImageService.shared.avatarURL,
-            let url = URL(string: profileImageURL)
-        else { return }
-        profileImageView.kf.indicatorType = .activity
-
-        profileImageView.kf.setImage(
-            with: url,
-            placeholder: UIImage(named: "placeholeder"),
-            options: [
-                .scaleFactor(UIScreen.main.scale),
-                .transition(.fade(1)),
-                .cacheOriginalImage,
-                .forceRefresh,
-            ])
-    }
-
-    private func updateProfileData() {
-        guard let profile = profileService.profile else {
-            assertionFailure("Cannot find profile data in profileService")
-            return
-        }
-        fullName.text =
-            profile.name.isEmpty
-            ? "Имя не указано"
-            : profile.name
-        userName.text =
-            profile.loginName.isEmpty
-            ? "@неизвестный_пользователь"
-            : profile.loginName
-        userBio.text =
-            (profile.bio?.isEmpty ?? true)
-            ? "Профиль не заполнен"
-            : profile.bio
-    }
-
     //MARK: - Setup UI
     private func setupUI() {
         self.view.backgroundColor = UIColor.ypBg
@@ -170,6 +107,37 @@ final class ProfileViewController: UIViewController {
     }
 }
 
+//MARK: - ProfileControllerProtocol
+extension ProfileViewController: ProfileControllerProtocol {
+    func dismiss() {
+        dismiss(animated: true)
+    }
+    
+    func showAlertForLogout(_ alert: AlertModel) {
+        AlertPresenter.showAlert(alertData: alert, id: "logOut", delegate: self)
+    }
+
+    func updateAvatar(with url: URL) {
+        profileImageView.kf.indicatorType = .activity
+        profileImageView.kf.setImage(
+            with: url,
+            placeholder: UIImage(resource: .placeholder),
+            options: [
+                .scaleFactor(UIScreen.main.scale),
+                .transition(.fade(1)),
+                .cacheOriginalImage,
+                .forceRefresh,
+            ])
+    }
+
+    func updateProfileData(with profile: ProfileDataModel) {
+        fullName.text = profile.fullname
+        userName.text = profile.username
+        userBio.text = profile.bio
+    }
+
+}
+//MARK: - AlertPresenterDelegate
 extension ProfileViewController: AlertPresenterDelegate {
     func didPresentAlert(alert: UIAlertController?) {
         guard let alert else { return }

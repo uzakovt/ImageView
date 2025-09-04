@@ -17,6 +17,7 @@ final class AuthViewController: UIViewController {
     }()
     private lazy var enterButton: UIButton = {
         let button = UIButton()
+        button.accessibilityIdentifier = "Authenticate"
         button.setTitle("Войти", for: .normal)
         button.setTitleColor(.ypBlack, for: .normal)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 17)
@@ -37,7 +38,12 @@ final class AuthViewController: UIViewController {
 
     //MARK: - Methods
     private func navigateToWebView() {
+        let configuration = AuthConfiguration.standard
+        let authHelper = AuthHelper(configuration: configuration)
         let webViewVC = WebViewViewController()
+        let webViewPresenter = WebViewPresenter(authHelper: authHelper)
+        webViewVC.presenter = webViewPresenter
+        webViewPresenter.view = webViewVC
         webViewVC.delegate = self
         webViewVC.modalPresentationStyle = .fullScreen
         show(webViewVC, sender: self)
