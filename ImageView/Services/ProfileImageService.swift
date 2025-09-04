@@ -14,7 +14,7 @@ final class ProfileImageService {
     private let urlSession = URLSession.shared
 
     private init() {}
-    
+
     func cleanProfileImageData() {
         self.avatarURL = nil
         self.task = nil
@@ -26,7 +26,9 @@ final class ProfileImageService {
         self.task?.cancel()
 
         guard let token = oauthStorage.token else {
-            print("ProfileImageSerice/fetchProfile: Token error - Unable to unwrap Token from storage")
+            print(
+                "ProfileImageSerice/fetchProfile: Token error - Unable to unwrap Token from storage"
+            )
             assertionFailure("Cant unwrap token for fetchProfileImageURL")
             completion(
                 .failure(
@@ -46,7 +48,9 @@ final class ProfileImageService {
             let request = makeProfileImageRequest(
                 token: token, username: username)
         else {
-            print("ProfileImageService/makeProfileImageRequest: UrlSession request error - Invalid Request")
+            print(
+                "ProfileImageService/makeProfileImageRequest: UrlSession request error - Invalid Request"
+            )
             assertionFailure("Cannot unwrap profileImageRequest")
             completion(
                 .failure(ProfileImageServiceError.invalidProfileImageRequest))
@@ -66,7 +70,9 @@ final class ProfileImageService {
                     userInfo: ["URL": decodedData.profileImage.small]
                 )
             case .failure(let error):
-                print("ProfileImageSerice/fetchProfileImage: UrlSession Task error - \(error.localizedDescription)")
+                print(
+                    "ProfileImageSerice/fetchProfileImage: UrlSession Task error - \(error.localizedDescription)"
+                )
                 assertionFailure(error.localizedDescription)
                 completion(.failure(error))
                 return
@@ -84,7 +90,9 @@ final class ProfileImageService {
             string: "/users/\(username)", relativeTo: Constants.defaultBaseURL)
 
         guard let url else {
-            print("ProfileImageSerice/makeProfileImageRequest: URL error - Unable to unwrap URL")
+            print(
+                "ProfileImageSerice/makeProfileImageRequest: URL error - Unable to unwrap URL"
+            )
             assertionFailure(
                 "Cant unwrap url or token for fetchProfileImageURL")
             return nil
