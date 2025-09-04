@@ -10,7 +10,7 @@ final class AuthViewController: UIViewController {
     //MARK: - UI Components
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
-        let logoImage = UIImage(named: "auth_screen_logo")
+        let logoImage = UIImage(resource: .authScreenLogo)
         imageView.image = logoImage
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
@@ -57,9 +57,9 @@ final class AuthViewController: UIViewController {
     private func setupUI() {
         view.backgroundColor = .ypBg
         navigationController?.navigationBar.backIndicatorImage = UIImage(
-            named: "backward")
+            resource: .backward)
         navigationController?.navigationBar.backIndicatorTransitionMaskImage =
-            UIImage(named: "backward")
+        UIImage(resource: .backward)
         navigationItem.backBarButtonItem = UIBarButtonItem(
             title: "", style: .plain, target: nil, action: nil)
         navigationItem.backBarButtonItem?.tintColor = .ypBlack
